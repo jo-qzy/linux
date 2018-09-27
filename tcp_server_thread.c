@@ -14,6 +14,7 @@ void* thr_create_chat(void* id)
     char buf[1024] = {0};
     while (1)
     {
+		//接收数据
         ssize_t recv_len = recv(client_fd, buf, 1024, 0);
         if (recv_len < 0)
         {
@@ -28,6 +29,7 @@ void* thr_create_chat(void* id)
         }
         else
         {
+			//发送数据
             printf("[client ip:%d]\n%s\n", client_fd, buf);
             send(client_fd, "server is busy", 14, 0);
         }
@@ -49,12 +51,14 @@ void create_chat(int client_fd)
 
 int main(int argc, char* argv[])
 {
+	//1.创建套接字
     int server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_fd < 0)
     {
         perror("socket create error");
         return -1;
     }
+	//2.绑定地址
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(atoi(argv[2]));
@@ -66,6 +70,7 @@ int main(int argc, char* argv[])
         perror("bind failed");
         return -1;
     }
+	//3.开始监听
     ret = listen(server_fd, 5);   
     if (ret < 0)
     {
@@ -74,6 +79,7 @@ int main(int argc, char* argv[])
     }
     while (1)
     {
+		//4.建立连接
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
         int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
@@ -82,6 +88,7 @@ int main(int argc, char* argv[])
             perror("accept failed");
             continue;
         }
+		//5.创建线程
         create_chat(client_fd);
     }
     return 0;
