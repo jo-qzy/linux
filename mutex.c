@@ -31,6 +31,7 @@ void* sell_ticket(void* arg)
         if (ticket > 0)
         {
             ticket--;
+			usleep(100);
             printf("Ticket scalper %d buy a ticket, tickets left %d\n", id, ticket);
         }
         else
