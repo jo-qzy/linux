@@ -8,6 +8,7 @@
 
 int main(int argc, char* argv[])
 {
+	//1.创建套接字
     int server_fd, client_fd, ret;
     server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_fd < 0)
@@ -15,6 +16,7 @@ int main(int argc, char* argv[])
         perror("socket error");
         return -1;
     }
+	//2.绑定地址
     struct sockaddr_in server_addr;
     socklen_t server_len = sizeof(server_addr);
     server_addr.sin_family = AF_INET;
@@ -26,6 +28,7 @@ int main(int argc, char* argv[])
         perror("bind error");
         return -1;
     }
+	//3.开始监听
     ret = listen(server_fd, 5);
     if (ret < 0)
     {
@@ -36,6 +39,7 @@ int main(int argc, char* argv[])
     {
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
+		//4.accept等待连接
         client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
         if (client_fd < 0)
         {
@@ -43,6 +47,7 @@ int main(int argc, char* argv[])
             continue;
         }
         char buf[2048] = {0};
+		//5.接收http请求
         ret = recv(client_fd, buf, 2047, 0);
         if (ret > 0)
         {
@@ -55,8 +60,10 @@ int main(int argc, char* argv[])
                 "Content-Length: ", strlen(rsp),
                 "Content-Type: text/html; charset=UTF-8",
                 rsp);
+		//6.回应请求
         write(client_fd, buf, strlen(buf));
-        close(client_fd);
+        //7.断开连接
+		close(client_fd);
     }
 
     return 0;
