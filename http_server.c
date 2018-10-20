@@ -16,6 +16,9 @@ int main(int argc, char* argv[])
         perror("socket error");
         return -1;
     }
+    //防止意外断开，无法重新创建服务端的问题
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	//2.绑定地址
     struct sockaddr_in server_addr;
     socklen_t server_len = sizeof(server_addr);
@@ -55,6 +58,11 @@ int main(int argc, char* argv[])
         }
         char* rsp = "<h1>hello world<h1>";
         memset(buf, 0, 2048);
+		//http请求/回复格式
+		//首行	请求方法/协议版本 url/状态码 协议版本/状态码描述\r\n
+		//协议头	一个一个的键值对(key: val)\r\n
+		//空行	\r\n
+		//正文	……
         sprintf(buf, "%s\r\n%s%d\r\n%s\r\n\r\n%s",
                 "HTTP/1.1 200 OK",
                 "Content-Length: ", strlen(rsp),
