@@ -1,3 +1,7 @@
+//实现网页输入IP地址和端口，回复一个http回复
+//使用前先关闭防火墙
+//centOS7关闭防火墙命令：systemctl stop firewalld.service
+//centOS6关闭防火墙命令：servcie iptables stop
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -8,6 +12,12 @@
 
 int main(int argc, char* argv[])
 {
+	//使用说明
+    if (argc != 3)
+    {
+        printf("Usage:./http_server IP_addr port");
+        return -1;
+    }
 	//1.创建套接字
     int server_fd, client_fd, ret;
     server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
