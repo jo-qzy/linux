@@ -6,63 +6,81 @@
 int argc = 0;
 char* argv[32] = {NULL};
 
-int param_parse(char* buff)
+int div_commond(char* buf)
 {
-    if (buff == NULL)
-        return -1;
-    argc = 0;
-    char* ptr = buff;
-    char* tmp = NULL;
+	if (buf == NULL)
+		return -1;
+	argc = 0;
+	char* front = buf;
+	char* back = buf;
 	//不断分割命令成指针数组
-    while (*ptr != '\0')
-    {
-        while (*ptr == ' ')
-            ptr++;
-        if (*ptr == '\0')
-            break;
-        tmp = ptr;
-        while (*tmp != ' ')
-            tmp++;
-        *tmp = '\0';
-        argv[argc++] = ptr;
-        ptr = ++tmp;
-    }
-    argv[argc++] = NULL;
-    return 0;
+	while (1)
+	{
+		while (*front == ' ')
+			front++;
+		if (*front == '\0')
+			break;
+		back = front;
+		while (*back != ' ' && *back != '\0')
+			back++;
+		if (*back == '\0')
+		{
+			argv[argc++] = front;
+			break;
+		}
+		*back = '\0';
+		argv[argc++] = front;
+		front = back + 1;
+	}
+	argv[argc++] = NULL;
+	if (argc == 1)
+		return -1;
+	return 0;
 }
 
 int exec_cmd()
 {
-    int pid = 0;
-    pid = fork();
-    if (pid < 0)
-        return -1;
-    else if (pid == 0)
-    {
+	int pid = fork();
+	if (pid < 0)
+	{
+		perror("fork failed");
+		return -1;
+	}
+	else if (pid == 0)
+	{
 		//替换进程
-        execvp(argv[0], argv);
-        exit(0);
-    }
-	//wait用法，等待子进程退出，退出后一个状态码会存入statu
-	//用WIFEXITED这个宏来获取退出值是否是正常退出
-    int statu;
-    wait(&statu);
-    if (WIFEXITED(statu) == 1)
-        printf("%s\n", strerror(WEXITSTATUS(statu)));
-    return 0;
+		execvp(argv[0], argv);
+		exit(0);
+	}
+	else
+	{
+		//wait用法，等待子进程退出，退出后一个状态码会存入statu
+		//用WIFEXITED这个宏来获取退出值是否是正常退出
+		int status;
+		wait(&status);
+		if (WIFEXITED(status) == 1)
+			printf("%s\n", strerror(WEXITSTATUS(status)));
+	}
+	return 0;
 }
-
+	
 int main()
 {
-    while (1)
-    {
-        char buff[1024] = {0};
-        printf("[qzy@personal shell]$ ");
+	char buf[1024];
+	while (1)
+	{
+		memset(buf, 0x00, 1024);
+		printf("------shell>>>>>>");
 		//读取到\n为止，删除缓冲区数据
-        scanf("%[^\n]%*c", buff);
-        if (param_parse(buff) == -1)
-            printf("wrong commond\n");
-        exec_cmd();
-    }
-    return 0;
+		scanf("%[^\n]%*c", buf);
+		if (div_commond(buf) != 0)
+		{
+			char black_hall[100];
+			fgets(black_hall, 100, stdin);
+			printf("wrong commond\n");
+			continue;
+		}
+		exec_cmd();
+	}
+	return 0;
 }
