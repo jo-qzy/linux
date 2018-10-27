@@ -8,6 +8,7 @@ int main()
 {
     int fd = 0;
 	//关闭文件描述符为1的文件，新打开的文件将占据1号描述符
+	//1号描述符原来是属于stdout的，所以标准输出被分配给新打开的文件了
     close(1);
     fd = open("./redirect.txt", O_RDWR | O_CREAT | O_APPEND, 0644);
     if (fd < 0)
