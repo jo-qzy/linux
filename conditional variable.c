@@ -51,7 +51,7 @@ void* produce()
 
 void* consume()
 {
-    //没有面就要等待
+    //没有鸡腿就要等待
     //int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
     //  pthread_cond_wait就是用来睡眠的
     //  条件变量是和互斥锁搭配使用的
